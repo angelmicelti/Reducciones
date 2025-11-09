@@ -1,0 +1,2870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Reducciones Horarias - Mejorado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, #2c3e50, #1a365d);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        h1 i {
+            color: #4dabf7;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 800px;
+        }
+        
+        .controls {
+            background: #e9ecef;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #4dabf7;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3b8fd4;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #adb5bd;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #868e96;
+        }
+
+        .btn-print {
+            background: #20c997;
+            color: white;
+        }
+        
+        .btn-print:hover {
+            background: #12b886;
+            transform: translateY(-2px);
+        }
+        
+        .btn-export {
+            background: #7950f2;
+            color: white;
+        }
+        
+        .btn-export:hover {
+            background: #6741d9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-import {
+            background: #f76707;
+            color: white;
+        }
+        
+        .btn-import:hover {
+            background: #e8590c;
+            transform: translateY(-2px);
+        }
+
+        /* Nuevos estilos para botones de GitHub */
+        .btn-github-save {
+            background: #238636;
+            color: white;
+        }
+        
+        .btn-github-save:hover {
+            background: #2ea043;
+            transform: translateY(-2px);
+        }
+        
+        .btn-github-load {
+            background: #6e40c9;
+            color: white;
+        }
+        
+        .btn-github-load:hover {
+            background: #5a32a3;
+            transform: translateY(-2px);
+        }
+        
+        .areas-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 1400px) {
+            .areas-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .areas-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .area-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .area-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .area-header {
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .socio-header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+        }
+        
+        .artistico-header {
+            background: linear-gradient(to right, #d6336c, #e64980);
+        }
+        
+        .tecnologico-header {
+            background: linear-gradient(to right, #0c8599, #1098ad);
+        }
+        
+        .orientacion-header {
+            background: linear-gradient(to right, #6f42c1, #8a63d2);
+        }
+        
+        .area-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .department-list {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .department {
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .department-header {
+            background: #f8f9fa;
+            padding: 15px;
+            font-weight: 700;
+            color: #495057;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .department-content {
+            padding: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f1f3f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.2);
+        }
+        
+        input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .checkbox-cell, .radio-cell {
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .hours-cell {
+            text-align: center;
+            font-weight: 600;
+            color: #3b5bdb;
+        }
+        
+        .summary-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .summary-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b5bdb;
+        }
+        
+        /* Departamento de Orientación */
+        .orientacion-container {
+            padding: 0 30px 30px;
+        }
+        
+        .orientacion-title {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .orientacion-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .orientacion-header {
+            display: none;
+        }
+        
+        /* Equipo Directivo */
+        .equipo-directivo {
+            padding: 0 30px 30px;
+        }
+        
+        .directivo-title {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .directivo-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .directivo-header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .directivo-content {
+            padding: 20px;
+        }
+        
+        .directivo-content table {
+            width: 100%;
+        }
+        
+        .directivo-content th {
+            background: #f1f3f5;
+        }
+        
+        .directivo-total {
+            font-weight: bold;
+            background: #f8f9fa;
+        }
+        
+        .directivo-error {
+            color: #e63946;
+            font-weight: 600;
+            text-align: center;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            background: #ffeef0;
+            display: none;
+        }
+        
+        /* Otras Reducciones */
+        .otras-reducciones {
+            padding: 0 30px 30px;
+        }
+        
+        .otras-title {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .otras-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .reduccion-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .reduccion-header {
+            color: white;
+            padding: 18px;
+            font-size: 1.2rem;
+        }
+        
+        .convivencia-header {
+            background: linear-gradient(to right, #20c997, #12b886);
+        }
+        
+        .actividades-header {
+            background: linear-gradient(to right, #fd7e14, #ff922b);
+        }
+        
+        .forevin-header {
+            background: linear-gradient(to right, #be4bdb, #cc5de8);
+        }
+        
+        .tde-header {
+            background: linear-gradient(to right, #228be6, #339af0);
+        }
+        
+        .escuela40-header {
+            background: linear-gradient(to right, #94d82d, #a9e34b);
+        }
+        
+        .tutoria-header {
+            background: linear-gradient(to right, #f783ac, #faa2c1);
+        }
+        
+        .pdc-header {
+            background: linear-gradient(to right, #ffd43b, #ffec99);
+            color: #333 !important;
+        }
+        
+        .reduccion-content {
+            padding: 15px;
+        }
+        
+        /* Resumen General */
+        .resumen-general {
+            padding: 30px;
+            background: #f1f3f5;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .resumen-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .resumen-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border-left: 4px solid #4d79ff;
+            position: relative;
+        }
+        
+        .resumen-item.directivo {
+            border-left-color: #2c3e50;
+        }
+        
+        .resumen-item.plan-centro {
+            border-left-color: #d6336c;
+        }
+        
+        .resumen-item.ensenanza-digital {
+            border-left-color: #0c8599;
+        }
+        
+        .resumen-item.total {
+            border-left-color: #40c057;
+            background: #ebfbee;
+            grid-column: span 2;
+        }
+        
+        .resumen-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .resumen-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3b5bdb;
+        }
+        
+        .resumen-item.total .resumen-value {
+            font-size: 2.2rem;
+            color: #2b8a3e;
+        }
+
+        .resumen-warning {
+            color: #e63946;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: #2c3e50;
+            color: #e9ecef;
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .footer-links a {
+            color: #a9d6ff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: #4dabf7;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(200%);
+            transition: transform 0.4s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: #40c057;
+        }
+        
+        .notification.error {
+            background: #fa5252;
+        }
+        
+        .notification.info {
+            background: #4dabf7;
+        }
+
+        .validation-alert {
+            background: #ffeef0;
+            border-left: 4px solid #e63946;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 1200px;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* Modal para GitHub Token */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .modal p {
+            margin-bottom: 20px;
+            color: #495057;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .modal-btn-primary {
+            background: #4dabf7;
+            color: white;
+        }
+        
+        .modal-btn-secondary {
+            background: #adb5bd;
+            color: white;
+        }
+
+        /* Estilos para la lista de Gists */
+        .gist-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .gist-item {
+            padding: 12px;
+            border-bottom: 1px solid #f1f3f5;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .gist-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .gist-item:last-child {
+            border-bottom: none;
+        }
+        
+        .gist-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .gist-date {
+            font-size: 0.85rem;
+            color: #868e96;
+        }
+        
+        @media (max-width: 768px) {
+            .areas-container {
+                padding: 15px;
+            }
+            
+            .area-title {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .otras-grid, .resumen-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .resumen-item.total {
+                grid-column: span 1;
+            }
+        }
+
+        /* Estilos para impresión */
+        @media print {
+            body, html {
+                background: white;
+                margin: 0;
+                padding: 0;
+                font-size: 12px;
+            }
+            
+            .container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            header {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem !important;
+            }
+            
+            .controls, 
+            .notification,
+            footer {
+                display: none !important;
+            }
+            
+            .areas-container {
+                padding: 10px;
+                gap: 15px;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+            
+            .area-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                margin-bottom: 10px;
+                page-break-inside: avoid;
+            }
+            
+            .department-list {
+                padding: 10px;
+                max-height: none;
+                overflow: visible;
+            }
+            
+            .summary-card {
+                padding: 15px;
+            }
+            
+            .resumen-general {
+                padding: 20px;
+            }
+            
+            .resumen-item {
+                padding: 15px;
+            }
+            
+            input[type="text"],
+            input[type="number"],
+            input[type="checkbox"],
+            input[type="radio"] {
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                pointer-events: none;
+                color: #333 !important;
+            }
+            
+            input[type="text"] {
+                text-align: center;
+            }
+            
+            .checkbox-cell, .radio-cell {
+                text-align: center;
+            }
+            
+            .resumen-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 10px;
+                max-width: 100% !important;
+            }
+            
+            .resumen-item.total {
+                grid-column: span 4 !important;
+            }
+            
+            @page {
+                size: A3 landscape;
+                margin: 0.5cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1><i class="fas fa-clock"></i> Gestión de Reducciones Horarias</h1>
+                <p class="subtitle">Sistema completo para gestionar reducciones horarias en el IES Virgen de Villadiego</p>
+            </div>
+        </header>
+        
+        <div class="controls">
+            <button class="btn btn-primary" id="saveBtn">
+                <i class="fas fa-save"></i> Guardar Datos
+            </button>
+            <button class="btn btn-export" id="exportBtn">
+                <i class="fas fa-file-export"></i> Exportar Datos
+            </button>
+            <button class="btn btn-import" id="importBtn">
+                <i class="fas fa-file-import"></i> Importar Datos
+            </button>
+            <input type="file" id="fileInput" class="file-input" accept=".json">
+            <button class="btn btn-github-save" id="saveGistBtn">
+                <i class="fab fa-github"></i> Guardar en Gist
+            </button>
+            <button class="btn btn-github-load" id="loadGistBtn">
+                <i class="fab fa-github"></i> Cargar desde Gist
+            </button>
+            <button class="btn btn-secondary" id="resetBtn">
+                <i class="fas fa-redo"></i> Reiniciar Datos
+            </button>
+            <button class="btn btn-print" id="printBtn">
+                <i class="fas fa-print"></i> Imprimir en A3
+            </button>
+        </div>
+        
+        <!-- Modal para GitHub Token -->
+        <div class="modal" id="githubTokenModal">
+            <div class="modal-content">
+                <h3><i class="fab fa-github"></i> Token de GitHub Requerido</h3>
+                <p>Para usar la funcionalidad de GitHub Gists, necesitas un token de acceso personal.</p>
+                <p>Puedes crear uno en <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings</a> con el permiso "gist".</p>
+                <input type="password" class="modal-input" id="githubTokenInput" placeholder="Ingresa tu token de GitHub">
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-secondary" id="cancelTokenBtn">Cancelar</button>
+                    <button class="modal-btn modal-btn-primary" id="saveTokenBtn">Guardar Token</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para seleccionar Gist -->
+        <div class="modal" id="gistListModal">
+            <div class="modal-content">
+                <h3><i class="fab fa-github"></i> Seleccionar Gist</h3>
+                <p>Selecciona un Gist para cargar:</p>
+                <div class="gist-list" id="gistList">
+                    <!-- Los Gists se cargarán aquí dinámicamente -->
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-secondary" id="cancelGistBtn">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alertas de validación -->
+        <div class="validation-alert" id="validation-alert" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div id="validation-message"></div>
+        </div>
+        
+        <!-- Equipo Directivo -->
+        <div class="equipo-directivo">
+            <h2 class="directivo-title"><i class="fas fa-users"></i> EQUIPO DIRECTIVO</h2>
+            <div class="directivo-card">
+                <div class="directivo-header">
+                    <h3><i class="fas fa-user-tie"></i> Distribución de horas de reducción</h3>
+                </div>
+                <div class="directivo-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cargo</th>
+                                <th>Nombre</th>
+                                <th>Horas de reducción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dirección</td>
+                                <td><input type="text" id="director-name"></td>
+                                <td><input type="number" id="director-hours" min="0" max="24" value="8"></td>
+                            </tr>
+                            <tr>
+                                <td>Jefatura de Estudios</td>
+                                <td><input type="text" id="jefatura-name"></td>
+                                <td><input type="number" id="jefatura-hours" min="0" max="24" value="8"></td>
+                            </tr>
+                            <tr>
+                                <td>Secretaría</td>
+                                <td><input type="text" id="secretaria-name"></td>
+                                <td><input type="number" id="secretaria-hours" min="0" max="24" value="8"></td>
+                            </tr>
+                            <tr class="directivo-total">
+                                <td colspan="2">TOTAL</td>
+                                <td><span id="total-directivo">24</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="directivo-error" id="directivo-error">
+                        ¡El total debe ser 24 horas!
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="areas-container">
+            <!-- Área Sociolingüística -->
+            <div class="area-card">
+                <div class="area-header socio-header">
+                    <h2 class="area-title"><i class="fas fa-book"></i> Área Sociolingüística</h2>
+                </div>
+                <div class="department-list">
+                    <!-- Departamento de Lengua -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-font"></i> Departamento de Lengua
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="lengua" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="lengua" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="lengua" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="lengua" data-index="0">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="lengua" data-index="1"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="lengua" data-index="1"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="lengua" data-index="1"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="lengua" data-index="1">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="lengua" data-index="2"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="lengua" data-index="2"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="lengua" data-index="2"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="lengua" data-index="2">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="lengua" data-index="3"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="lengua" data-index="3"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="lengua" data-index="3"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="lengua" data-index="3">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Departamento de Geografía e Historia -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-globe-europe"></i> Departamento de Geografía e Historia
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="gh" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="gh" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="gh" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="gh" data-index="0">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="gh" data-index="1"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="gh" data-index="1"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="gh" data-index="1"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="gh" data-index="1">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="gh" data-index="2"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="gh" data-index="2"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="gh" data-index="2"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="gh" data-index="2">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Departamento de Inglés -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-language"></i> Departamento de Inglés
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="ingles" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="ingles" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="ingles" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="ingles" data-index="0">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="ingles" data-index="1"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="ingles" data-index="1"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="ingles" data-index="1"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="ingles" data-index="1">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="ingles" data-index="2"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="ingles" data-index="2"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="ingles" data-index="2"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="ingles" data-index="2">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Departamento de Francés -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-language"></i> Departamento de Francés
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="socio" data-dept="frances" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="socio" data-dept="frances" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="socio-ja" class="ja" data-area="socio" data-dept="frances" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="socio" data-dept="frances" data-index="0">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>Resumen de Reducciones</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h3>Total JD</h3>
+                            <div class="summary-value" id="socio-jd-total">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Total JA</h3>
+                            <div class="summary-value" id="socio-ja-total">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Horas JD</h3>
+                            <div class="summary-value" id="socio-jd-hours">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Horas JA</h3>
+                            <div class="summary-value" id="socio-ja-hours">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Área Científico-Tecnológica -->
+            <div class="area-card">
+                <div class="area-header tecnologico-header">
+                    <h2 class="area-title"><i class="fas fa-flask"></i> Área Científico-Tecnológica</h2>
+                </div>
+                <div class="department-list">
+                    <!-- Departamento de Matemáticas -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-calculator"></i> Departamento de Matemáticas
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="matematicas" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="matematicas" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="matematicas" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="matematicas" data-index="0">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="matematicas" data-index="1"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="matematicas" data-index="1"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="matematicas" data-index="1"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="matematicas" data-index="1">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="matematicas" data-index="2"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="matematicas" data-index="2"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="matematicas" data-index="2"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="matematicas" data-index="2">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="matematicas" data-index="3"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="matematicas" data-index="3"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="matematicas" data-index="3"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="matematicas" data-index="3">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Departamento de Ciencias -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-atom"></i> Departamento de Ciencias
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="ciencias" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="ciencias" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="ciencias" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="ciencias" data-index="0">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="ciencias" data-index="1"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="ciencias" data-index="1"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="ciencias" data-index="1"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="ciencias" data-index="1">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="ciencias" data-index="2"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="ciencias" data-index="2"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="ciencias" data-index="2"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="ciencias" data-index="2">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Departamento de Tecnología -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-microchip"></i> Departamento de Tecnología
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="tecnologia" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="tecnologia" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="tecnologia" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="tecnologia" data-index="0">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="tecnologia" data-index="1"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="tecnologia" data-index="1"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="tecnologia" data-index="1"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="tecnologia" data-index="1">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="tecnologico" data-dept="tecnologia" data-index="2"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="tecnologico" data-dept="tecnologia" data-index="2"></td>
+                                        <td class="radio-cell"><input type="radio" name="tecnologico-ja" class="ja" data-area="tecnologico" data-dept="tecnologia" data-index="2"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="tecnologico" data-dept="tecnologia" data-index="2">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>Resumen de Reducciones</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h3>Total JD</h3>
+                            <div class="summary-value" id="tecnologico-jd-total">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Total JA</h3>
+                            <div class="summary-value" id="tecnologico-ja-total">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Horas JD</h3>
+                            <div class="summary-value" id="tecnologico-jd-hours">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Horas JA</h3>
+                            <div class="summary-value" id="tecnologico-ja-hours">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Área Artística -->
+            <div class="area-card">
+                <div class="area-header artistico-header">
+                    <h2 class="area-title"><i class="fas fa-palette"></i> Área Artística</h2>
+                </div>
+                <div class="department-list">
+                    <!-- Departamento de Dibujo -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-paint-brush"></i> Departamento de Dibujo
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="artistico" data-dept="dibujo" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="artistico" data-dept="dibujo" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="artistico-ja" class="ja" data-area="artistico" data-dept="dibujo" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="artistico" data-dept="dibujo" data-index="0">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Departamento de Educación Física -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-running"></i> Departamento de Educación Física
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="artistico" data-dept="ef" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="artistico" data-dept="ef" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="artistico-ja" class="ja" data-area="artistico" data-dept="ef" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="artistico" data-dept="ef" data-index="0">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Departamento de Música -->
+                    <div class="department">
+                        <div class="department-header">
+                            <i class="fas fa-music"></i> Departamento de Música
+                        </div>
+                        <div class="department-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="checkbox-cell">JD</th>
+                                        <th class="radio-cell">JA</th>
+                                        <th class="hours-cell">Horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="prof-name" data-area="artistico" data-dept="musica" data-index="0"></td>
+                                        <td class="checkbox-cell"><input type="checkbox" class="jd" data-area="artistico" data-dept="musica" data-index="0"></td>
+                                        <td class="radio-cell"><input type="radio" name="artistico-ja" class="ja" data-area="artistico" data-dept="musica" data-index="0"></td>
+                                        <td class="hours-cell"><span class="hours" data-area="artistico" data-dept="musica" data-index="0">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>Resumen de Reducciones</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h3>Total JD</h3>
+                            <div class="summary-value" id="artistico-jd-total">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Total JA</h3>
+                            <div class="summary-value" id="artistico-ja-total">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Horas JD</h3>
+                            <div class="summary-value" id="artistico-jd-hours">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Horas JA</h3>
+                            <div class="summary-value" id="artistico-ja-hours">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Departamento de Orientación -->
+        <div class="orientacion-container">
+            <h2 class="orientacion-title"><i class="fas fa-graduation-cap"></i> Departamento de Orientación</h2>
+            <div class="orientacion-card">
+                <div class="department-list">
+                    <div class="department-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="radio-cell">JD</th>
+                                    <th class="hours-cell">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="orientacion-name-0"></td>
+                                    <td class="radio-cell"><input type="radio" name="orientacion-jd" class="orientacion-jd" id="orientacion-jd-0"></td>
+                                    <td class="hours-cell"><span id="orientacion-hours-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="orientacion-name-1"></td>
+                                    <td class="radio-cell"><input type="radio" name="orientacion-jd" class="orientacion-jd" id="orientacion-jd-1"></td>
+                                    <td class="hours-cell"><span id="orientacion-hours-1">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="orientacion-name-2"></td>
+                                    <td class="radio-cell"><input type="radio" name="orientacion-jd" class="orientacion-jd" id="orientacion-jd-2"></td>
+                                    <td class="hours-cell"><span id="orientacion-hours-2">0</span></td>
+                                </tr>
+                                <!-- Nueva línea añadida - cuarto campo -->
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="orientacion-name-3"></td>
+                                    <td class="radio-cell"><input type="radio" name="orientacion-jd" class="orientacion-jd" id="orientacion-jd-3"></td>
+                                    <td class="hours-cell"><span id="orientacion-hours-3">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OTRAS REDUCCIONES -->
+        <div class="otras-reducciones">
+            <h2 class="otras-title"><i class="fas fa-list-alt"></i> OTRAS REDUCCIONES</h2>
+            <div class="otras-grid">
+                <!-- Coordinación de Convivencia -->
+                <div class="reduccion-card">
+                    <div class="reduccion-header convivencia-header">
+                        <h3><i class="fas fa-handshake"></i> Coordinación de Convivencia</h3>
+                    </div>
+                    <div class="reduccion-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="checkbox-cell">Resp.</th>
+                                    <th class="hours-cell">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="convivencia-name"></td>
+                                    <td class="checkbox-cell"><input type="checkbox" id="convivencia-jd"></td>
+                                    <td class="hours-cell"><span id="convivencia-hours">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Departamento de Actividades Complementarias y Extraescolares -->
+                <div class="reduccion-card">
+                    <div class="reduccion-header actividades-header">
+                        <h3><i class="fas fa-calendar-alt"></i> Actividades Complementarias y Extraescolares</h3>
+                    </div>
+                    <div class="reduccion-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="checkbox-cell">Resp.</th>
+                                    <th class="hours-cell">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="actividades-jd-name"></td>
+                                    <td class="checkbox-cell"><input type="checkbox" id="actividades-jd"></td>
+                                    <td class="hours-cell"><span id="actividades-jd-hours">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Departamento de Formación, Evaluación e Innovación (FOREVIN) -->
+                <div class="reduccion-card">
+                    <div class="reduccion-header forevin-header">
+                        <h3><i class="fas fa-chalkboard-teacher"></i> Departamento FOREVIN</h3>
+                    </div>
+                    <div class="reduccion-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="checkbox-cell">Resp.</th>
+                                    <th class="hours-cell">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="forevin-jd-name"></td>
+                                    <td class="checkbox-cell"><input type="checkbox" id="forevin-jd"></td>
+                                    <td class="hours-cell"><span id="forevin-jd-hours">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Coordinación de TDE -->
+                <div class="reduccion-card">
+                    <div class="reduccion-header tde-header">
+                        <h3><i class="fas fa-laptop-code"></i> Coordinación de TDE</h3>
+                    </div>
+                    <div class="reduccion-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="checkbox-cell">Resp.</th>
+                                    <th class="hours-cell">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="tde-name"></td>
+                                    <td class="checkbox-cell"><input type="checkbox" id="tde-jd"></td>
+                                    <td class="hours-cell"><span id="tde-hours">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Coordinación Escuela 4.0 -->
+                <div class="reduccion-card">
+                    <div class="reduccion-header escuela40-header">
+                        <h3><i class="fas fa-tablet-alt"></i> Coordinación Escuela 4.0</h3>
+                    </div>
+                    <div class="reduccion-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="checkbox-cell">Resp.</th>
+                                    <th class="hours-cell">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="escuela40-name"></td>
+                                    <td class="checkbox-cell"><input type="checkbox" id="escuela40-jd"></td>
+                                    <td class="hours-cell"><span id="escuela40-hours">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Tutoría de Pendientes -->
+                <div class="reduccion-card">
+                    <div class="reduccion-header tutoria-header">
+                        <h3><i class="fas fa-user-graduate"></i> Tutoría de Pendientes</h3>
+                    </div>
+                    <div class="reduccion-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="checkbox-cell">Resp.</th>
+                                    <th class="hours-cell">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="tutoria-name"></td>
+                                    <td class="checkbox-cell"><input type="checkbox" id="tutoria-jd"></td>
+                                    <td class="hours-cell"><span id="tutoria-hours">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Otra reducción PdC -->
+                <div class="reduccion-card">
+                    <div class="reduccion-header pdc-header">
+                        <h3><i class="fas fa-file-alt"></i> Otra reducción PdC</h3>
+                    </div>
+                    <div class="reduccion-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="checkbox-cell">Resp.</th>
+                                    <th class="hours-cell">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="prof-name" id="pdc-name"></td>
+                                    <td class="checkbox-cell"><input type="checkbox" id="pdc-jd"></td>
+                                    <td class="hours-cell"><span id="pdc-hours">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- RESUMEN GENERAL -->
+        <div class="resumen-general">
+            <h2 class="resumen-title"><i class="fas fa-chart-bar"></i> RESUMEN GENERAL</h2>
+            <div class="resumen-grid">
+                <div class="resumen-item directivo">
+                    <h3>Horas de reducción del equipo directivo</h3>
+                    <div class="resumen-value" id="horas-directivo">24</div>
+                    <div class="resumen-warning" id="warning-directivo">
+                        <i class="fas fa-exclamation-triangle"></i> Deben ser 24 horas
+                    </div>
+                </div>
+                <div class="resumen-item plan-centro">
+                    <h3>Horas de reducción asociadas al Plan de Centro</h3>
+                    <div class="resumen-value" id="horas-plan-centro">0</div>
+                    <div class="resumen-warning" id="warning-plan-centro">
+                        <i class="fas fa-exclamation-triangle"></i> Deben ser 36 horas
+                    </div>
+                </div>
+                <div class="resumen-item ensenanza-digital">
+                    <h3>Horas de reducción Enseñanza Digital</h3>
+                    <div class="resumen-value" id="horas-ensenanza-digital">0</div>
+                    <div class="resumen-warning" id="warning-ensenanza-digital">
+                        <i class="fas fa-exclamation-triangle"></i> Deben ser 4 horas
+                    </div>
+                </div>
+                <div class="resumen-item total">
+                    <h3>TOTAL HORAS DE REDUCCIÓN</h3>
+                    <div class="resumen-value" id="total-horas">0</div>
+                    <div class="resumen-warning" id="warning-total">
+                        <i class="fas fa-exclamation-triangle"></i> Deben ser 64 horas
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="footer-content">
+                <p>Sistema de Gestión de Reducciones Horarias &copy; 2025 -  IES Virgen de Villadiego</p>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-info-circle"></i> Información</a>
+                    <a href="#"><i class="fas fa-question-circle"></i> Ayuda</a>
+                    <!-- Enlace de contacto actualizado -->
+                    <a href="mailto:iesvirgendevilladiego@iesvilladiego.com"><i class="fas fa-envelope"></i> Contacto</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notification-message">Mensaje de notificación</span>
+    </div>
+
+    <script>
+        // Variables para almacenamiento de datos
+        const equipoDirectivo = {
+            director: { name: '', hours: 8 },
+            jefatura: { name: '', hours: 8 },
+            secretaria: { name: '', hours: 8 }
+        };
+
+        const data = {
+            socio: {
+                lengua: Array(4).fill().map(() => ({ name: '', jd: false, ja: false })),
+                gh: Array(3).fill().map(() => ({ name: '', jd: false, ja: false })),
+                ingles: Array(3).fill().map(() => ({ name: '', jd: false, ja: false })),
+                frances: Array(1).fill().map(() => ({ name: '', jd: false, ja: false }))
+            },
+            tecnologico: {
+                matematicas: Array(4).fill().map(() => ({ name: '', jd: false, ja: false })),
+                ciencias: Array(3).fill().map(() => ({ name: '', jd: false, ja: false })),
+                tecnologia: Array(3).fill().map(() => ({ name: '', jd: false, ja: false }))
+            },
+            artistico: {
+                dibujo: Array(1).fill().map(() => ({ name: '', jd: false, ja: false })),
+                ef: Array(1).fill().map(() => ({ name: '', jd: false, ja: false })),
+                musica: Array(1).fill().map(() => ({ name: '', jd: false, ja: false }))
+            },
+            // Orientación ahora con 4 elementos
+            orientacion: Array(4).fill().map(() => ({ name: '', jd: false })),
+            otrasReducciones: {
+                convivencia: { name: '', jd: false },
+                actividades: { name: '', jd: false },
+                forevin: { name: '', jd: false },
+                tde: { name: '', jd: false },
+                escuela40: { name: '', jd: false },
+                tutoria: { name: '', jd: false },
+                otraPdc: { name: '', jd: false }
+            }
+        };
+
+        // Inicializar la aplicación
+        function initApp() {
+            loadData();
+            setupEventListeners();
+            calculateAllHours();
+            calculateResumenGeneral();
+            updateDirectivoTotals();
+        }
+
+        // Actualizar totales del equipo directivo
+        function updateDirectivoTotals() {
+            const total = equipoDirectivo.director.hours + 
+                          equipoDirectivo.jefatura.hours + 
+                          equipoDirectivo.secretaria.hours;
+            
+            document.getElementById('total-directivo').textContent = total;
+            document.getElementById('horas-directivo').textContent = total;
+            
+            const errorElement = document.getElementById('directivo-error');
+            if (total !== 24) {
+                errorElement.style.display = 'block';
+            } else {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Mostrar notificación
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const messageElement = document.getElementById('notification-message');
+            
+            messageElement.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Encontrar el JA actual en un área
+        function findCurrentJa(area) {
+            for (const dept of Object.keys(data[area])) {
+                for (let index = 0; index < data[area][dept].length; index++) {
+                    if (data[area][dept][index].ja) {
+                        return {
+                            area,
+                            dept,
+                            index,
+                            radio: document.querySelector(`.ja[data-area="${area}"][data-dept="${dept}"][data-index="${index}"]`)
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Configurar listeners de eventos
+        function setupEventListeners() {
+            // Guardar datos
+            document.getElementById('saveBtn').addEventListener('click', saveData);
+            
+            // Exportar datos
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            
+            // Importar datos
+            document.getElementById('importBtn').addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
+            
+            document.getElementById('fileInput').addEventListener('change', importData);
+            
+            // Reiniciar datos
+            document.getElementById('resetBtn').addEventListener('click', resetData);
+            
+            // Imprimir en A3
+            document.getElementById('printBtn').addEventListener('click', printA3);
+            
+            // Equipo Directivo
+            document.getElementById('director-name').addEventListener('input', function() {
+                equipoDirectivo.director.name = this.value;
+                saveData();
+            });
+            
+            document.getElementById('jefatura-name').addEventListener('input', function() {
+                equipoDirectivo.jefatura.name = this.value;
+                saveData();
+            });
+            
+            document.getElementById('secretaria-name').addEventListener('input', function() {
+                equipoDirectivo.secretaria.name = this.value;
+                saveData();
+            });
+            
+            document.getElementById('director-hours').addEventListener('change', function() {
+                const hours = parseInt(this.value) || 0;
+                equipoDirectivo.director.hours = hours;
+                updateDirectivoTotals();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            document.getElementById('jefatura-hours').addEventListener('change', function() {
+                const hours = parseInt(this.value) || 0;
+                equipoDirectivo.jefatura.hours = hours;
+                updateDirectivoTotals();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            document.getElementById('secretaria-hours').addEventListener('change', function() {
+                const hours = parseInt(this.value) || 0;
+                equipoDirectivo.secretaria.hours = hours;
+                updateDirectivoTotals();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            // Campos de nombre
+            document.querySelectorAll('.prof-name').forEach(input => {
+                input.addEventListener('input', function() {
+                    const area = this.dataset.area;
+                    const dept = this.dataset.dept;
+                    const index = this.dataset.index;
+                    
+                    if (area && dept) {
+                        data[area][dept][index].name = this.value;
+                    } else if (this.id.startsWith('orientacion-name')) {
+                        const idx = this.id.split('-')[2];
+                        data.orientacion[idx].name = this.value;
+                    } else if (this.id === 'convivencia-name') {
+                        data.otrasReducciones.convivencia.name = this.value;
+                    } else if (this.id === 'actividades-jd-name') {
+                        data.otrasReducciones.actividades.name = this.value;
+                    } else if (this.id === 'forevin-jd-name') {
+                        data.otrasReducciones.forevin.name = this.value;
+                    } else if (this.id === 'tde-name') {
+                        data.otrasReducciones.tde.name = this.value;
+                    } else if (this.id === 'escuela40-name') {
+                        data.otrasReducciones.escuela40.name = this.value;
+                    } else if (this.id === 'tutoria-name') {
+                        data.otrasReducciones.tutoria.name = this.value;
+                    } else if (this.id === 'pdc-name') {
+                        data.otrasReducciones.otraPdc.name = this.value;
+                    }
+                    
+                    saveData();
+                });
+            });
+            
+            // Checkboxes JD para áreas principales
+            document.querySelectorAll('.jd[data-area]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const area = this.dataset.area;
+                    const dept = this.dataset.dept;
+                    const index = this.dataset.index;
+                    
+                    if (area && dept) {
+                        data[area][dept][index].jd = this.checked;
+                        
+                        // Si se desmarca JD y es JA, también quitar JA
+                        if (!this.checked && data[area][dept][index].ja) {
+                            data[area][dept][index].ja = false;
+                            const jaRadio = document.querySelector(`.ja[data-area="${area}"][data-dept="${dept}"][data-index="${index}"]`);
+                            if (jaRadio) jaRadio.checked = false;
+                        }
+                        
+                        // Solo puede haber un JD por departamento
+                        if (this.checked) {
+                            const allJd = document.querySelectorAll(`.jd[data-area="${area}"][data-dept="${dept}"]`);
+                            allJd.forEach(jd => {
+                                if (jd !== this && jd.checked) {
+                                    jd.checked = false;
+                                    const jdIndex = jd.dataset.index;
+                                    data[area][dept][jdIndex].jd = false;
+                                    updateHours(area, dept, jdIndex);
+                                }
+                            });
+                        }
+                        
+                        updateHours(area, dept, index);
+                        calculateAreaTotals(area);
+                        calculateResumenGeneral();
+                        saveData();
+                    }
+                });
+            });
+            
+            // Radios JA
+            document.querySelectorAll('.ja').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (!this.checked) return;
+                    
+                    const { area, dept, index } = this.dataset;
+                    
+                    // Obtener el JA actual en el área
+                    const currentJa = findCurrentJa(area);
+                    
+                    // Si hay un JA actual, desmarcarlo
+                    if (currentJa) {
+                        // Actualizar datos
+                        data[currentJa.area][currentJa.dept][currentJa.index].ja = false;
+                        
+                        // Actualizar interfaz
+                        if (currentJa.radio) {
+                            currentJa.radio.checked = false;
+                        }
+                        
+                        // Actualizar horas del JA anterior
+                        updateHours(currentJa.area, currentJa.dept, currentJa.index);
+                    }
+                    
+                    // Marcar el nuevo JA
+                    data[area][dept][index].ja = true;
+                    
+                    // Asegurarse de que el nuevo JA es JD
+                    if (!data[area][dept][index].jd) {
+                        data[area][dept][index].jd = true;
+                        const jdCheckbox = document.querySelector(`.jd[data-area="${area}"][data-dept="${dept}"][data-index="${index}"]`);
+                        if (jdCheckbox) jdCheckbox.checked = true;
+                    }
+                    
+                    // Actualizar horas del nuevo JA
+                    updateHours(area, dept, index);
+                    
+                    // Recalcular totales del área
+                    calculateAreaTotals(area);
+                    
+                    calculateResumenGeneral();
+                    saveData();
+                });
+            });
+            
+            // Radios para Orientación
+            document.querySelectorAll('.orientacion-jd').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        const index = this.id.split('-')[2];
+                        
+                        // Desmarcar todos los radio buttons en orientación
+                        data.orientacion.forEach((prof, i) => {
+                            prof.jd = (i == index);
+                        });
+                        
+                        // Actualizar horas
+                        data.orientacion.forEach((prof, i) => {
+                            updateOrientacionHours(i);
+                        });
+                        
+                        calculateResumenGeneral();
+                        saveData();
+                    }
+                });
+            });
+            
+            // Event listeners específicos para OTRAS REDUCCIONES
+            document.getElementById('convivencia-jd').addEventListener('change', function() {
+                data.otrasReducciones.convivencia.jd = this.checked;
+                updateConvivenciaHours();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            document.getElementById('actividades-jd').addEventListener('change', function() {
+                data.otrasReducciones.actividades.jd = this.checked;
+                updateActividadesHours();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            document.getElementById('forevin-jd').addEventListener('change', function() {
+                data.otrasReducciones.forevin.jd = this.checked;
+                updateForevinHours();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            document.getElementById('tde-jd').addEventListener('change', function() {
+                data.otrasReducciones.tde.jd = this.checked;
+                updateTDEHours();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            document.getElementById('escuela40-jd').addEventListener('change', function() {
+                data.otrasReducciones.escuela40.jd = this.checked;
+                updateEscuela40Hours();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            document.getElementById('tutoria-jd').addEventListener('change', function() {
+                data.otrasReducciones.tutoria.jd = this.checked;
+                updateTutoriaHours();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            document.getElementById('pdc-jd').addEventListener('change', function() {
+                data.otrasReducciones.otraPdc.jd = this.checked;
+                updatePdCHours();
+                calculateResumenGeneral();
+                saveData();
+            });
+            
+            // Configurar GitHub listeners
+            setupGitHubListeners();
+        }
+
+        // Configurar event listeners para GitHub
+        function setupGitHubListeners() {
+            // Guardar en Gist
+            document.getElementById('saveGistBtn').addEventListener('click', saveToGist);
+            
+            // Cargar desde Gist
+            document.getElementById('loadGistBtn').addEventListener('click', loadGistList);
+            
+            // Modal de token
+            document.getElementById('saveTokenBtn').addEventListener('click', function() {
+                const token = document.getElementById('githubTokenInput').value.trim();
+                if (token) {
+                    saveGitHubToken(token);
+                    hideTokenModal();
+                    showNotification('Token de GitHub guardado correctamente', 'success');
+                }
+            });
+            
+            document.getElementById('cancelTokenBtn').addEventListener('click', hideTokenModal);
+            
+            // Modal de lista de Gists
+            document.getElementById('cancelGistBtn').addEventListener('click', hideGistListModal);
+            
+            // Cerrar modales al hacer clic fuera
+            document.getElementById('githubTokenModal').addEventListener('click', function(e) {
+                if (e.target === this) hideTokenModal();
+            });
+            
+            document.getElementById('gistListModal').addEventListener('click', function(e) {
+                if (e.target === this) hideGistListModal();
+            });
+        }
+
+        // Obtener token de GitHub
+        function getGitHubToken() {
+            return localStorage.getItem('githubToken');
+        }
+
+        // Guardar token de GitHub
+        function saveGitHubToken(token) {
+            localStorage.setItem('githubToken', token);
+        }
+
+        // Mostrar modal para token
+        function showTokenModal() {
+            document.getElementById('githubTokenModal').style.display = 'flex';
+        }
+
+        // Ocultar modal para token
+        function hideTokenModal() {
+            document.getElementById('githubTokenModal').style.display = 'none';
+            document.getElementById('githubTokenInput').value = '';
+        }
+
+        // Mostrar modal de lista de Gists
+        function showGistListModal() {
+            document.getElementById('gistListModal').style.display = 'flex';
+        }
+
+        // Ocultar modal de lista de Gists
+        function hideGistListModal() {
+            document.getElementById('gistListModal').style.display = 'none';
+        }
+
+        // Actualizar horas para un profesor
+        function updateHours(area, dept, index) {
+            const prof = data[area][dept][index];
+            const hours = (prof.jd ? 2 : 0) + (prof.ja ? 2 : 0);
+            
+            const hoursElement = document.querySelector(`.hours[data-area="${area}"][data-dept="${dept}"][data-index="${index}"]`);
+            if (hoursElement) {
+                hoursElement.textContent = hours;
+            }
+        }
+
+        // Actualizar horas para orientación
+        function updateOrientacionHours(index) {
+            const prof = data.orientacion[index];
+            const hours = prof.jd ? 2 : 0;
+            
+            document.getElementById(`orientacion-hours-${index}`).textContent = hours;
+        }
+
+        // Actualizar horas para otras reducciones
+        function updateConvivenciaHours() {
+            const hours = data.otrasReducciones.convivencia.jd ? 2 : 0;
+            document.getElementById('convivencia-hours').textContent = hours;
+        }
+        
+        function updateActividadesHours() {
+            const hours = data.otrasReducciones.actividades.jd ? 2 : 0;
+            document.getElementById('actividades-jd-hours').textContent = hours;
+        }
+        
+        function updateForevinHours() {
+            const hours = data.otrasReducciones.forevin.jd ? 2 : 0;
+            document.getElementById('forevin-jd-hours').textContent = hours;
+        }
+        
+        function updateTDEHours() {
+            const hours = data.otrasReducciones.tde.jd ? 3 : 0;
+            document.getElementById('tde-hours').textContent = hours;
+        }
+        
+        function updateEscuela40Hours() {
+            const hours = data.otrasReducciones.escuela40.jd ? 1 : 0;
+            document.getElementById('escuela40-hours').textContent = hours;
+        }
+        
+        function updateTutoriaHours() {
+            const hours = data.otrasReducciones.tutoria.jd ? 1 : 0;
+            document.getElementById('tutoria-hours').textContent = hours;
+        }
+        
+        function updatePdCHours() {
+            const hours = data.otrasReducciones.otraPdc.jd ? 1 : 0;
+            document.getElementById('pdc-hours').textContent = hours;
+        }
+
+        // Calcular totales por área
+        function calculateAreaTotals(area) {
+            let jdTotal = 0;
+            let jaTotal = 0;
+            let jdHours = 0;
+            let jaHours = 0;
+            
+            Object.keys(data[area]).forEach(dept => {
+                data[area][dept].forEach(prof => {
+                    if (prof.jd) {
+                        jdTotal++;
+                        jdHours += 2;
+                    }
+                    if (prof.ja) {
+                        jaTotal++;
+                        jaHours += 2;
+                    }
+                });
+            });
+            
+            // Validar que solo hay un JA por área
+            if (jaTotal > 1) {
+                // Encontrar y desmarcar JA adicionales
+                let jaCount = 0;
+                Object.keys(data[area]).forEach(dept => {
+                    data[area][dept].forEach((prof, index) => {
+                        if (prof.ja) {
+                            jaCount++;
+                            if (jaCount > 1) {
+                                prof.ja = false;
+                                const jaRadio = document.querySelector(`.ja[data-area="${area}"][data-dept="${dept}"][data-index="${index}"]`);
+                                if (jaRadio) jaRadio.checked = false;
+                                updateHours(area, dept, index);
+                            }
+                        }
+                    });
+                });
+                jaHours = 2; // Solo un JA = 2 horas
+                jaTotal = 1;
+                showNotification(`¡Atención! Solo puede haber un JA por área. Se ha ajustado automáticamente.`, 'error');
+            }
+            
+            document.getElementById(`${area}-jd-total`).textContent = jdTotal;
+            document.getElementById(`${area}-ja-total`).textContent = jaTotal;
+            document.getElementById(`${area}-jd-hours`).textContent = jdHours;
+            document.getElementById(`${area}-ja-hours`).textContent = jaHours;
+        }
+
+        // Calcular todas las horas
+        function calculateAllHours() {
+            // Áreas principales
+            ['socio', 'tecnologico', 'artistico'].forEach(area => {
+                Object.keys(data[area]).forEach(dept => {
+                    data[area][dept].forEach((prof, index) => {
+                        updateHours(area, dept, index);
+                    });
+                });
+                calculateAreaTotals(area);
+            });
+            
+            // Orientación
+            data.orientacion.forEach((prof, index) => {
+                updateOrientacionHours(index);
+            });
+            
+            // Otras reducciones
+            updateConvivenciaHours();
+            updateActividadesHours();
+            updateForevinHours();
+            updateTDEHours();
+            updateEscuela40Hours();
+            updateTutoriaHours();
+            updatePdCHours();
+        }
+
+        // Calcular resumen general
+        function calculateResumenGeneral() {
+            // Horas del equipo directivo
+            const horasDirectivo = equipoDirectivo.director.hours + 
+                                 equipoDirectivo.jefatura.hours + 
+                                 equipoDirectivo.secretaria.hours;
+            
+            // Calcular horas de reducción asociadas al Plan de Centro
+            let horasPlanCentro = 0;
+            
+            // Horas de las áreas (JD y JA)
+            ['socio', 'tecnologico', 'artistico'].forEach(area => {
+                Object.keys(data[area]).forEach(dept => {
+                    data[area][dept].forEach(prof => {
+                        if (prof.jd) horasPlanCentro += 2;
+                        if (prof.ja) horasPlanCentro += 2;
+                    });
+                });
+            });
+            
+            // Horas de orientación
+            data.orientacion.forEach(prof => {
+                if (prof.jd) horasPlanCentro += 2;
+            });
+            
+            // Otras reducciones para Plan de Centro
+            if (data.otrasReducciones.convivencia.jd) horasPlanCentro += 2;
+            if (data.otrasReducciones.actividades.jd) horasPlanCentro += 2;
+            if (data.otrasReducciones.forevin.jd) horasPlanCentro += 2;
+            if (data.otrasReducciones.tutoria.jd) horasPlanCentro += 1;
+            if (data.otrasReducciones.otraPdc.jd) horasPlanCentro += 1;
+            
+            // Calcular horas de enseñanza digital (TDE y Escuela 4.0)
+            const horasTDE = data.otrasReducciones.tde.jd ? 3 : 0;
+            const horasEscuela40 = data.otrasReducciones.escuela40.jd ? 1 : 0;
+            const horasEnsenanzaDigital = horasTDE + horasEscuela40;
+            
+            // Calcular total de horas
+            const totalHoras = horasDirectivo + horasPlanCentro + horasEnsenanzaDigital;
+            
+            // Actualizar DOM
+            document.getElementById('horas-directivo').textContent = horasDirectivo;
+            document.getElementById('horas-plan-centro').textContent = horasPlanCentro;
+            document.getElementById('horas-ensenanza-digital').textContent = horasEnsenanzaDigital;
+            document.getElementById('total-horas').textContent = totalHoras;
+            
+            // Validar horas
+            validateHours(horasDirectivo, horasPlanCentro, horasEnsenanzaDigital, totalHoras);
+        }
+
+        // Validar las horas totales
+        function validateHours(horasDirectivo, horasPlanCentro, horasEnsenanzaDigital, totalHoras) {
+            const alertElement = document.getElementById('validation-alert');
+            const messageElement = document.getElementById('validation-message');
+            
+            let messages = [];
+            
+            // Validar equipo directivo
+            if (horasDirectivo !== 24) {
+                messages.push(`- Horas de Equipo Directivo: ${horasDirectivo} (deben ser 24)`);
+                document.getElementById('warning-directivo').style.display = 'block';
+                document.getElementById('horas-directivo').style.color = '#e63946';
+            } else {
+                document.getElementById('warning-directivo').style.display = 'none';
+                document.getElementById('horas-directivo').style.color = '#3b5bdb';
+            }
+            
+            // Validar plan de centro
+            if (horasPlanCentro !== 36) {
+                messages.push(`- Horas de Plan de Centro: ${horasPlanCentro} (deben ser 36)`);
+                document.getElementById('warning-plan-centro').style.display = 'block';
+                document.getElementById('horas-plan-centro').style.color = '#e63946';
+            } else {
+                document.getElementById('warning-plan-centro').style.display = 'none';
+                document.getElementById('horas-plan-centro').style.color = '#3b5bdb';
+            }
+            
+            // Validar enseñanza digital
+            if (horasEnsenanzaDigital !== 4) {
+                messages.push(`- Horas de Enseñanza Digital: ${horasEnsenanzaDigital} (deben ser 4)`);
+                document.getElementById('warning-ensenanza-digital').style.display = 'block';
+                document.getElementById('horas-ensenanza-digital').style.color = '#e63946';
+            } else {
+                document.getElementById('warning-ensenanza-digital').style.display = 'none';
+                document.getElementById('horas-ensenanza-digital').style.color = '#3b5bdb';
+            }
+            
+            // Validar total
+            if (totalHoras !== 64) {
+                messages.push(`- Total de horas: ${totalHoras} (deben ser 64)`);
+                document.getElementById('warning-total').style.display = 'block';
+                document.getElementById('total-horas').style.color = '#e63946';
+            } else {
+                document.getElementById('warning-total').style.display = 'none';
+                document.getElementById('total-horas').style.color = '#2b8a3e';
+            }
+            
+            // Mostrar alerta si hay errores
+            if (messages.length > 0) {
+                messageElement.innerHTML = '<strong>¡Atención! Se han detectado discrepancias:</strong><br>' + messages.join('<br>');
+                alertElement.style.display = 'flex';
+            } else {
+                alertElement.style.display = 'none';
+            }
+        }
+
+        // Guardar datos en localStorage
+        function saveData() {
+            const saveData = {
+                equipoDirectivo,
+                data
+            };
+            localStorage.setItem('reduccionesData', JSON.stringify(saveData));
+            showNotification('Datos guardados correctamente', 'success');
+        }
+
+        // Exportar datos a un archivo JSON
+        function exportData() {
+            const saveData = {
+                equipoDirectivo,
+                data,
+                version: "1.0",
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(saveData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            // Crear un enlace de descarga
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `reducciones_horarias_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Datos exportados correctamente. Guarda el archivo para usarlo en otros dispositivos.', 'success');
+        }
+
+        // Importar datos desde un archivo JSON
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validar la estructura básica de los datos importados
+                    if (!importedData.equipoDirectivo || !importedData.data) {
+                        throw new Error('El archivo no contiene datos válidos para este sistema.');
+                    }
+                    
+                    // Preguntar confirmación antes de importar
+                    if (confirm('¿Está seguro de que desea importar estos datos? Se sobrescribirán los datos actuales.')) {
+                        // Guardar los datos importados en localStorage
+                        localStorage.setItem('reduccionesData', JSON.stringify(importedData));
+                        
+                        // Recargar la página para aplicar los datos importados
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error al importar datos:', error);
+                    showNotification('Error al importar: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Limpiar el input de archivo para permitir cargar el mismo archivo de nuevo si es necesario
+            event.target.value = '';
+        }
+
+        // Cargar datos desde localStorage
+        function loadData() {
+            const savedData = localStorage.getItem('reduccionesData');
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                
+                // Cargar equipo directivo
+                if (parsedData.equipoDirectivo) {
+                    equipoDirectivo.director = parsedData.equipoDirectivo.director || { name: '', hours: 8 };
+                    equipoDirectivo.jefatura = parsedData.equipoDirectivo.jefatura || { name: '', hours: 8 };
+                    equipoDirectivo.secretaria = parsedData.equipoDirectivo.secretaria || { name: '', hours: 8 };
+                    
+                    document.getElementById('director-name').value = equipoDirectivo.director.name;
+                    document.getElementById('director-hours').value = equipoDirectivo.director.hours;
+                    document.getElementById('jefatura-name').value = equipoDirectivo.jefatura.name;
+                    document.getElementById('jefatura-hours').value = equipoDirectivo.jefatura.hours;
+                    document.getElementById('secretaria-name').value = equipoDirectivo.secretaria.name;
+                    document.getElementById('secretaria-hours').value = equipoDirectivo.secretaria.hours;
+                }
+                
+                // Cargar datos principales
+                if (parsedData.data) {
+                    const loadedData = parsedData.data;
+                    
+                    // Cargar áreas principales
+                    ['socio', 'tecnologico', 'artistico'].forEach(area => {
+                        Object.keys(loadedData[area]).forEach(dept => {
+                            if (data[area][dept]) {
+                                loadedData[area][dept].forEach((prof, index) => {
+                                    if (index < data[area][dept].length) {
+                                        data[area][dept][index] = prof;
+                                        
+                                        // Actualizar UI
+                                        const nameInput = document.querySelector(`.prof-name[data-area="${area}"][data-dept="${dept}"][data-index="${index}"]`);
+                                        if (nameInput) nameInput.value = prof.name;
+                                        
+                                        const jdCheckbox = document.querySelector(`.jd[data-area="${area}"][data-dept="${dept}"][data-index="${index}"]`);
+                                        if (jdCheckbox) jdCheckbox.checked = prof.jd;
+                                        
+                                        const jaRadio = document.querySelector(`.ja[data-area="${area}"][data-dept="${dept}"][data-index="${index}"]`);
+                                        if (jaRadio) jaRadio.checked = prof.ja;
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    
+                    // Cargar orientación (ahora con 4 elementos)
+                    if (loadedData.orientacion) {
+                        loadedData.orientacion.forEach((prof, index) => {
+                            if (index < data.orientacion.length) {
+                                data.orientacion[index] = prof;
+                                
+                                document.getElementById(`orientacion-name-${index}`).value = prof.name;
+                                document.getElementById(`orientacion-jd-${index}`).checked = prof.jd;
+                            }
+                        });
+                    }
+                    
+                    // Cargar otras reducciones
+                    if (loadedData.otrasReducciones) {
+                        // Convivencia
+                        if (loadedData.otrasReducciones.convivencia) {
+                            data.otrasReducciones.convivencia = loadedData.otrasReducciones.convivencia;
+                            document.getElementById('convivencia-name').value = data.otrasReducciones.convivencia.name;
+                            document.getElementById('convivencia-jd').checked = data.otrasReducciones.convivencia.jd;
+                        }
+                        
+                        // Actividades
+                        if (loadedData.otrasReducciones.actividades) {
+                            data.otrasReducciones.actividades = loadedData.otrasReducciones.actividades;
+                            document.getElementById('actividades-jd-name').value = data.otrasReducciones.actividades.name;
+                            document.getElementById('actividades-jd').checked = data.otrasReducciones.actividades.jd;
+                        }
+                        
+                        // Forevin
+                        if (loadedData.otrasReducciones.forevin) {
+                            data.otrasReducciones.forevin = loadedData.otrasReducciones.forevin;
+                            document.getElementById('forevin-jd-name').value = data.otrasReducciones.forevin.name;
+                            document.getElementById('forevin-jd').checked = data.otrasReducciones.forevin.jd;
+                        }
+                        
+                        // TDE
+                        if (loadedData.otrasReducciones.tde) {
+                            data.otrasReducciones.tde = loadedData.otrasReducciones.tde;
+                            document.getElementById('tde-name').value = data.otrasReducciones.tde.name;
+                            document.getElementById('tde-jd').checked = data.otrasReducciones.tde.jd;
+                        }
+                        
+                        // Escuela 4.0
+                        if (loadedData.otrasReducciones.escuela40) {
+                            data.otrasReducciones.escuela40 = loadedData.otrasReducciones.escuela40;
+                            document.getElementById('escuela40-name').value = data.otrasReducciones.escuela40.name;
+                            document.getElementById('escuela40-jd').checked = data.otrasReducciones.escuela40.jd;
+                        }
+                        
+                        // Tutoría
+                        if (loadedData.otrasReducciones.tutoria) {
+                            data.otrasReducciones.tutoria = loadedData.otrasReducciones.tutoria;
+                            document.getElementById('tutoria-name').value = data.otrasReducciones.tutoria.name;
+                            document.getElementById('tutoria-jd').checked = data.otrasReducciones.tutoria.jd;
+                        }
+                        
+                        // PdC
+                        if (loadedData.otrasReducciones.otraPdc) {
+                            data.otrasReducciones.otraPdc = loadedData.otrasReducciones.otraPdc;
+                            document.getElementById('pdc-name').value = data.otrasReducciones.otraPdc.name;
+                            document.getElementById('pdc-jd').checked = data.otrasReducciones.otraPdc.jd;
+                        }
+                    }
+                }
+                
+                showNotification('Datos cargados correctamente', 'success');
+            } else {
+                // Datos de ejemplo para equipo directivo
+                equipoDirectivo.director.name = "Juan Pérez";
+                equipoDirectivo.jefatura.name = "María Gómez";
+                equipoDirectivo.secretaria.name = "Carlos Ruiz";
+                
+                // Datos de ejemplo para áreas
+                data.socio.lengua[0].name = "María García";
+                data.socio.gh[0].name = "Carlos Rodríguez";
+                data.socio.ingles[0].name = "Laura Martínez";
+                data.socio.frances[0].name = "Pedro Sánchez";
+                
+                data.tecnologico.matematicas[0].name = "Ana López";
+                data.tecnologico.ciencias[0].name = "Javier Fernández";
+                data.tecnologico.tecnologia[0].name = "Sofía Pérez";
+                
+                data.artistico.dibujo[0].name = "David Gómez";
+                data.artistico.ef[0].name = "Elena Ruiz";
+                data.artistico.musica[0].name = "Miguel Torres";
+                
+                // Orientación (ahora 4 elementos, el cuarto vacío)
+                data.orientacion[0].name = "Sara Ortiz";
+                // Los demás elementos (índices 1, 2, 3) permanecen vacíos
+                
+                // Otras reducciones
+                data.otrasReducciones.convivencia.name = "Juan Morales";
+                data.otrasReducciones.actividades.name = "Lucía Vargas";
+                data.otrasReducciones.forevin.name = "Roberto Medina";
+                data.otrasReducciones.tde.name = "Carmen Delgado";
+                data.otrasReducciones.escuela40.name = "Andrés Ríos";
+                data.otrasReducciones.tutoria.name = "Isabel Castro";
+                data.otrasReducciones.otraPdc.name = "Francisco Navarro";
+            }
+            
+            // Actualizar UI
+            updateDirectivoTotals();
+            calculateAllHours();
+            calculateResumenGeneral();
+        }
+
+        // Reiniciar datos
+        function resetData() {
+            if (confirm('¿Está seguro de que desea reiniciar todos los datos?')) {
+                localStorage.removeItem('reduccionesData');
+                
+                // Reiniciar equipo directivo
+                equipoDirectivo.director = { name: '', hours: 8 };
+                equipoDirectivo.jefatura = { name: '', hours: 8 };
+                equipoDirectivo.secretaria = { name: '', hours: 8 };
+                
+                document.getElementById('director-name').value = '';
+                document.getElementById('director-hours').value = 8;
+                document.getElementById('jefatura-name').value = '';
+                document.getElementById('jefatura-hours').value = 8;
+                document.getElementById('secretaria-name').value = '';
+                document.getElementById('secretaria-hours').value = 8;
+                
+                // Reiniciar datos en memoria
+                ['socio', 'tecnologico', 'artistico'].forEach(area => {
+                    Object.keys(data[area]).forEach(dept => {
+                        data[area][dept].forEach(prof => {
+                            prof.name = '';
+                            prof.jd = false;
+                            prof.ja = false;
+                        });
+                    });
+                });
+                
+                // Orientación (ahora con 4 elementos)
+                data.orientacion.forEach((prof, index) => {
+                    prof.name = '';
+                    prof.jd = false;
+                    document.getElementById(`orientacion-name-${index}`).value = '';
+                    document.getElementById(`orientacion-jd-${index}`).checked = false;
+                });
+                
+                Object.keys(data.otrasReducciones).forEach(section => {
+                    data.otrasReducciones[section].name = '';
+                    data.otrasReducciones[section].jd = false;
+                });
+                
+                // Reiniciar UI
+                document.querySelectorAll('.prof-name').forEach(input => input.value = '');
+                document.querySelectorAll('.jd').forEach(checkbox => checkbox.checked = false);
+                document.querySelectorAll('.ja').forEach(radio => radio.checked = false);
+                document.querySelectorAll('.orientacion-jd').forEach(radio => radio.checked = false);
+                
+                updateDirectivoTotals();
+                calculateAllHours();
+                calculateResumenGeneral();
+                showNotification('Datos reiniciados correctamente', 'info');
+            }
+        }
+
+        // Función para imprimir en formato A3
+        function printA3() {
+            window.print();
+        }
+
+        // ===== FUNCIONALIDAD GITHUB GISTS =====
+
+        // Guardar datos en Gist
+        async function saveToGist() {
+            const token = getGitHubToken();
+            
+            if (!token) {
+                showTokenModal();
+                return;
+            }
+            
+            try {
+                const saveData = {
+                    equipoDirectivo,
+                    data,
+                    version: "1.0",
+                    exportDate: new Date().toISOString(),
+                    description: "Datos de Reducciones Horarias IES Virgen de Villadiego"
+                };
+                
+                const dataStr = JSON.stringify(saveData, null, 2);
+                const fileName = `reducciones_horarias_${new Date().toISOString().slice(0, 10)}.json`;
+                
+                // Verificar si ya existe un Gist para esta aplicación
+                const existingGistId = localStorage.getItem('githubGistId');
+                
+                let response;
+                if (existingGistId) {
+                    // Actualizar Gist existente
+                    response = await updateGist(existingGistId, token, dataStr, fileName);
+                } else {
+                    // Crear nuevo Gist
+                    response = await createGist(token, dataStr, fileName);
+                    localStorage.setItem('githubGistId', response.id);
+                }
+                
+                showNotification('Datos guardados en GitHub Gist correctamente', 'success');
+            } catch (error) {
+                console.error('Error al guardar en Gist:', error);
+                showNotification('Error al guardar en Gist: ' + error.message, 'error');
+            }
+        }
+
+        // Crear nuevo Gist
+        async function createGist(token, content, fileName) {
+            const response = await fetch('https://api.github.com/gists', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    description: 'Reducciones Horarias IES Virgen de Villadiego',
+                    public: false,
+                    files: {
+                        [fileName]: {
+                            content: content
+                        }
+                    }
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+
+        // Actualizar Gist existente
+        async function updateGist(gistId, token, content, fileName) {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    description: 'Reducciones Horarias IES Virgen de Villadiego - Actualizado',
+                    files: {
+                        [fileName]: {
+                            content: content
+                        }
+                    }
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+
+        // Cargar lista de Gists del usuario
+        async function loadGistList() {
+            const token = getGitHubToken();
+            
+            if (!token) {
+                showTokenModal();
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://api.github.com/gists', {
+                    headers: {
+                        'Authorization': `token ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const gists = await response.json();
+                displayGistList(gists);
+                showGistListModal();
+            } catch (error) {
+                console.error('Error al cargar lista de Gists:', error);
+                showNotification('Error al cargar lista de Gists: ' + error.message, 'error');
+            }
+        }
+
+        // Mostrar lista de Gists en el modal
+        function displayGistList(gists) {
+            const gistListElement = document.getElementById('gistList');
+            gistListElement.innerHTML = '';
+            
+            // Filtrar Gists que parecen ser de esta aplicación
+            const appGists = gists.filter(gist => 
+                gist.description && 
+                (gist.description.includes('Reducciones Horarias') || 
+                 Object.keys(gist.files).some(fileName => fileName.includes('reducciones_horarias')))
+            );
+            
+            if (appGists.length === 0) {
+                gistListElement.innerHTML = '<div class="gist-item">No se encontraron Gists de reducciones horarias</div>';
+                return;
+            }
+            
+            appGists.forEach(gist => {
+                const gistItem = document.createElement('div');
+                gistItem.className = 'gist-item';
+                gistItem.innerHTML = `
+                    <div class="gist-name">${gist.description || 'Sin descripción'}</div>
+                    <div class="gist-date">Actualizado: ${new Date(gist.updated_at).toLocaleDateString()}</div>
+                `;
+                
+                gistItem.addEventListener('click', () => {
+                    loadFromGist(gist.id);
+                });
+                
+                gistListElement.appendChild(gistItem);
+            });
+        }
+
+        // Cargar datos desde un Gist específico
+        async function loadFromGist(gistId) {
+            const token = getGitHubToken();
+            
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    headers: {
+                        'Authorization': `token ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const gist = await response.json();
+                const files = Object.values(gist.files);
+                
+                if (files.length === 0) {
+                    throw new Error('El Gist no contiene archivos');
+                }
+                
+                // Tomar el primer archivo (debería ser el JSON de datos)
+                const file = files[0];
+                const fileResponse = await fetch(file.raw_url);
+                
+                if (!fileResponse.ok) {
+                    throw new Error(`Error al cargar el archivo: ${fileResponse.status}`);
+                }
+                
+                const fileContent = await fileResponse.text();
+                const importedData = JSON.parse(fileContent);
+                
+                // Validar la estructura básica de los datos importados
+                if (!importedData.equipoDirectivo || !importedData.data) {
+                    throw new Error('El archivo no contiene datos válidos para este sistema.');
+                }
+                
+                // Preguntar confirmación antes de importar
+                if (confirm('¿Está seguro de que desea importar estos datos desde GitHub Gist? Se sobrescribirán los datos actuales.')) {
+                    // Guardar los datos importados en localStorage
+                    localStorage.setItem('reduccionesData', JSON.stringify(importedData));
+                    localStorage.setItem('githubGistId', gistId);
+                    
+                    // Recargar la página para aplicar los datos importados
+                    location.reload();
+                }
+                
+            } catch (error) {
+                console.error('Error al cargar desde Gist:', error);
+                showNotification('Error al cargar desde Gist: ' + error.message, 'error');
+            } finally {
+                hideGistListModal();
+            }
+        }
+
+        // Inicializar la aplicación cuando se cargue el documento
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
