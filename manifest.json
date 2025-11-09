@@ -1,8 +1,8 @@
 {
   "name": "Gestión de Reducciones Horarias",
   "short_name": "ReduccionesHorarias",
-  "description": "Sistema completo para administrar reducciones horarias por áreas de competencia",
-  "start_url": "/",
+  "description": "Sistema completo para administrar reducciones horarias",
+  "start_url": "/Reducciones/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4dabf7",
