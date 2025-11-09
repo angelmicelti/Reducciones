@@ -2884,52 +2884,56 @@
         // Inicializar la aplicación cuando se cargue el documento
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
-		// ===== PWA FUNCTIONALITY =====
+// ===== PWA FUNCTIONALITY =====
 
-	// Registrar Service Worker
-	if ('serviceWorker' in navigator) {
-	  window.addEventListener('load', function() {
-		navigator.serviceWorker.register('sw.js', { 
-		  scope: '/ReduccionHoraria/'
-		})
-		.then(function(registration) {
-		  console.log('ServiceWorker registrado correctamente en scope: ', registration.scope);
-		})
-		.catch(function(error) {
-		  console.log('Error registrando ServiceWorker: ', error);
-		});
-	  });
-	}
+// Registrar Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(registration) {
+        console.log('ServiceWorker registrado correctamente con scope: ', registration.scope);
+      })
+      .catch(function(error) {
+        console.log('Error registrando ServiceWorker: ', error);
+      });
+  });
+}
 
-	// Detectar si la app está instalada como PWA
-	function isRunningAsPWA() {
-	  return window.matchMedia('(display-mode: standalone)').matches || 
-			 window.navigator.standalone === true;
-	}
+// Detectar si la app está instalada como PWA
+function isRunningAsPWA() {
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         window.navigator.standalone === true;
+}
 
-	// Mostrar botón de instalación
-	let deferredPrompt;
-	const installButton = document.createElement('button');
-	installButton.innerHTML = '<i class="fas fa-download"></i> Instalar App';
-	installButton.className = 'btn btn-primary';
-	installButton.style.display = 'none';
-	installButton.id = 'installButton';
+// Mostrar botón de instalación
+let deferredPrompt;
+const installButton = document.createElement('button');
+installButton.innerHTML = '<i class="fas fa-download"></i> Instalar App';
+installButton.className = 'btn btn-primary';
+installButton.style.display = 'none';
+installButton.id = 'installButton';
 
-	window.addEventListener('beforeinstallprompt', (e) => {
-	  e.preventDefault();
-	  deferredPrompt = e;
-	  installButton.style.display = 'block';
-	  
-	  installButton.addEventListener('click', async () => {
-		installButton.style.display = 'none';
-		deferredPrompt.prompt();
-		const { outcome } = await deferredPrompt.userChoice;
-		console.log(`User response to the install prompt: ${outcome}`);
-		deferredPrompt = null;
-	  });
-	});
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installButton.style.display = 'block';
+  
+  installButton.addEventListener('click', async () => {
+    installButton.style.display = 'none';
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    deferredPrompt = null;
+  });
+});
 
-	// Insertar botón de instalación en los controles
-	document.querySelector('.controls').appendChild(installButton);
+// Insertar botón de instalación en los controles
+document.querySelector('.controls').appendChild(installButton);
+
+// Manejar actualizaciones del Service Worker
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+  console.log('Nueva versión disponible');
+  showNotification('Nueva versión disponible. Recarga la aplicación.', 'info');
+});
 </body>
 </html>
