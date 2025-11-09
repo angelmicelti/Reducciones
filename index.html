@@ -3,6 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- PWA Meta Tags -->
+	<meta name="application-name" content="Reducciones Horarias">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta name="apple-mobile-web-app-title" content="Reducciones Horarias">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="msapplication-TileColor" content="#4dabf7">
+	<meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+	<meta name="theme-color" content="#4dabf7">
+
+	<!-- Apple Touch Icons -->
+	<link rel="apple-touch-icon" href="icons/icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180x180.png">
+	<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167x167.png">
+
+	<!-- Manifest -->
+	<link rel="manifest" href="manifest.json">
     <title>Gestión de Reducciones Horarias - Mejorado</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -2866,5 +2884,52 @@
         // Inicializar la aplicación cuando se cargue el documento
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
+		// ===== PWA FUNCTIONALITY =====
+
+	// Registrar Service Worker
+	if ('serviceWorker' in navigator) {
+	  window.addEventListener('load', function() {
+		navigator.serviceWorker.register('sw.js', { 
+		  scope: '/ReduccionHoraria/'
+		})
+		.then(function(registration) {
+		  console.log('ServiceWorker registrado correctamente en scope: ', registration.scope);
+		})
+		.catch(function(error) {
+		  console.log('Error registrando ServiceWorker: ', error);
+		});
+	  });
+	}
+
+	// Detectar si la app está instalada como PWA
+	function isRunningAsPWA() {
+	  return window.matchMedia('(display-mode: standalone)').matches || 
+			 window.navigator.standalone === true;
+	}
+
+	// Mostrar botón de instalación
+	let deferredPrompt;
+	const installButton = document.createElement('button');
+	installButton.innerHTML = '<i class="fas fa-download"></i> Instalar App';
+	installButton.className = 'btn btn-primary';
+	installButton.style.display = 'none';
+	installButton.id = 'installButton';
+
+	window.addEventListener('beforeinstallprompt', (e) => {
+	  e.preventDefault();
+	  deferredPrompt = e;
+	  installButton.style.display = 'block';
+	  
+	  installButton.addEventListener('click', async () => {
+		installButton.style.display = 'none';
+		deferredPrompt.prompt();
+		const { outcome } = await deferredPrompt.userChoice;
+		console.log(`User response to the install prompt: ${outcome}`);
+		deferredPrompt = null;
+	  });
+	});
+
+	// Insertar botón de instalación en los controles
+	document.querySelector('.controls').appendChild(installButton);
 </body>
 </html>
